@@ -18,8 +18,8 @@ transactions with real-time exchange rates.
 
 ### Advanced Features
 
-- ✅ **Data Export**: Export expenses to JSON, CSV, reach it from profile icon in nav bar
-- ✅ **Filtering & Search**: Filter expenses by date ranges and categories
+- ✅ **Data Export**: Export expenses to CSV, reach it from profile icon in nav bar
+- ✅ **Filtering & Search**: Filter expenses by date ranges
 - ✅ **Statistics Dashboard**: Visual overview of income, expenses, and balance
 - ✅ **Responsive Design**: Optimized for different screen sizes
 
@@ -28,7 +28,7 @@ transactions with real-time exchange rates.
 - ✅ **State Management**: BLoC pattern for predictable state management
 - ✅ **Clean Architecture**: Separation of concerns with core, data, and presentation layers since it
   is one feature
-- ✅ **Automated Testing**: Unit tests and widget tests
+- ✅ **Automated Testing**: Unit tests
 - ✅ **CI/CD Pipeline**: GitHub Actions for automated building and releases
 - ✅ **Code Generation**: Automated model generation with build_runner
 
