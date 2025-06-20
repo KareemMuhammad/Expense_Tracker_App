@@ -51,7 +51,7 @@ transactions with real-time exchange rates.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/expense_tracker_app.git
+   git clone https://github.com/KareemMuhammad/Expense_Tracker_App.git
    cd expense_tracker_app
    ```
 
