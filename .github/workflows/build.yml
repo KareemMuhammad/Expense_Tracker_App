@@ -1,0 +1,149 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.4'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Generate code
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Analyze code
+      run: flutter analyze
+    
+    - name: Run tests
+      run: flutter test
+
+  build-android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.4'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Generate code
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Build Android APK
+      run: flutter build apk --release
+    
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    needs: test
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.4'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Generate code
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Build iOS (no codesign)
+      run: flutter build ios --release --no-codesign
+    
+    - name: Create iOS IPA
+      run: |
+        cd build/ios/iphoneos
+        mkdir Payload
+        cp -r Runner.app Payload/
+        zip -r expense_tracker_app.ipa Payload/
+    
+    - name: Upload iOS artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa
+        path: build/ios/iphoneos/expense_tracker_app.ipa
+
+  release:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Android APK
+      uses: actions/download-artifact@v4
+      with:
+        name: android-apk
+        path: ./artifacts/
+    
+    - name: Download iOS IPA
+      uses: actions/download-artifact@v4
+      with:
+        name: ios-ipa
+        path: ./artifacts/
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./artifacts/app-release.apk
+          ./artifacts/expense_tracker_app.ipa
+        body: |
+          ## What's Changed
+          
+          ### Features
+          - Currency conversion with real-time exchange rates
+          - Expense tracking with categories and receipt attachment
+          - Data export (JSON, CSV, reports)
+          - Offline functionality with local storage
+          - Modern UI with smooth animations
+          
+          ### Downloads
+          - **Android APK**: For direct installation on Android devices
+          - **iOS IPA**: For iOS devices (requires proper signing for installation)
+          
+          ### Installation
+          1. Download the appropriate file for your platform
+          2. For Android: Enable "Install from unknown sources" and install the APK
+          3. For iOS: Use Xcode or a signing service to install the IPA
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
