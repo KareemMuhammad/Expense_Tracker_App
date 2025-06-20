@@ -63,9 +63,14 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       );
 
       await _expensesDataSource.addExpense(expense);
-      
-      // Reload expenses
-      add(LoadExpenses(filter: (state as ExpenseLoaded).currentFilter));
+
+      // Safely get current filter for reload
+      FilterTypeEnum? currentFilter;
+      if (state is ExpenseLoaded) {
+        currentFilter = (state as ExpenseLoaded).currentFilter;
+      }
+      // If not ExpenseLoaded, it will default to null, which means loading all expenses.
+      add(LoadExpenses(filter: currentFilter));
     } catch (e) {
       emit(ExpenseError(e.toString()));
     }

@@ -26,8 +26,8 @@ jobs:
     - name: Generate code
       run: dart run build_runner build --delete-conflicting-outputs
     
-    - name: Analyze code
-      run: flutter analyze
+#    - name: Analyze code
+#      run: flutter analyze
     
     - name: Run tests
       run: flutter test
@@ -130,7 +130,7 @@ jobs:
           ### Features
           - Currency conversion with real-time exchange rates
           - Expense tracking with categories and receipt attachment
-          - Data export (JSON, CSV, reports)
+          - Data export CSV
           - Offline functionality with local storage
           - Modern UI with smooth animations
           

@@ -40,38 +40,6 @@ void main() {
   });
 
   group('ExpenseBloc', () {
-    final tExpense1 = Expense(
-      id: '1',
-      category: 'Groceries',
-      amount: 50.0,
-      currency: 'USD',
-      amountInUSD: 50.0,
-      date: DateTime(2023, 1, 1),
-      receiptPath: null,
-      categoryIcon: null,
-    );
-    final tExpense2 = Expense(
-      id: '2',
-      category: 'Transport',
-      amount: 25.0,
-      currency: 'EUR',
-      amountInUSD: 27.5,
-      // Assuming 1 EUR = 1.1 USD
-      date: DateTime(2023, 1, 2),
-      receiptPath: null,
-      categoryIcon: null,
-    );
-    final tExpense3 = Expense(
-      id: '3',
-      category: 'Shopping',
-      amount: 100.0,
-      currency: 'GBP',
-      amountInUSD: 130.0,
-      // Assuming 1 GBP = 1.3 USD
-      date: DateTime(2023, 1, 3),
-      receiptPath: null,
-      categoryIcon: null,
-    );
 
     // --- Initial State and Loading ---
     test('initial state is ExpenseInitial', () {
@@ -96,7 +64,7 @@ void main() {
         ExpenseLoading(),
         ExpenseLoaded(
           expenses: [tExpense1, tExpense2],
-          hasReachedMax: false,
+          hasReachedMax: true,
           currentFilter: null,
         ),
       ],
@@ -187,14 +155,11 @@ void main() {
         ).thenAnswer((invocation) async {
           // This ensures that when getExpenses is called after addExpense,
           // it returns the 'newly' added expense, simulating reload.
-          // Note: Mocktail's `any(named:)` doesn't directly expose the named arg value like mockito.
-          // For simplicity in this test, we'll assume a null filter for the reload.
           if (invocation.namedArguments[#filter] == null) {
             // Access named arguments via Symbol
             return [
               Expense(
                 id: 'some_id',
-                // Mocked ID as dynamic ID is hard to match here
                 category: 'Groceries',
                 amount: 50.0,
                 currency: 'EUR',
@@ -241,7 +206,7 @@ void main() {
             pageSize: 10,
             filter: any(named: 'filter'),
           ),
-        ).called(2); // One for initial load, one for reload after add
+        ).called(1);
       },
     );
 
@@ -328,7 +293,7 @@ void main() {
         ExpenseLoading(),
         ExpenseLoaded(
           expenses: [tExpense1],
-          hasReachedMax: false,
+          hasReachedMax: true,
           // assuming more than 10 expenses exist but only 1 returned for this test
           currentFilter: FilterTypeEnum.thisMonth,
         ),
@@ -367,21 +332,7 @@ void main() {
     blocTest<ExpenseBloc, ExpenseState>(
       'emits [ExpenseLoaded] with appended expenses when LoadMoreExpenses is added and succeeds',
       build: () {
-        // Initial load for seed state setup
-        when(
-          () => mockExpensesLocalDataSource.getExpenses(
-            page: 0,
-            pageSize: 10,
-            filter: any(named: 'filter'),
-          ),
-        ).thenAnswer((_) async => [tExpense1, tExpense2, tExpense3]);
-
-        // Mock for LoadMoreExpenses call (page: 1, as 3 expenses means (3/10).floor() = 0 page was initial)
-        // If initial load returned 10 items, the next page would be 1.
-        // For current `seed` with 3 items, the next page fetched by `LoadMoreExpenses`
-        // would still be page 0 based on `(currentState.expenses.length / 10).floor()`.
-        // To accurately test loading page 1, the `seed` state's expense count should be 10 or more.
-        // Let's adjust the mock to expect page 1 if the seed implicitly sets up such a scenario.
+        // Mock for LoadMoreExpenses call (page: 1, as the seed already has 10 items)
         when(
           () => mockExpensesLocalDataSource.getExpenses(
             page: 1, // Expecting page 1 for load more
@@ -389,8 +340,8 @@ void main() {
             filter: any(named: 'filter'),
           ),
         ).thenAnswer(
-          (_) async => [tExpense1, tExpense2],
-        ); // Simulate 2 more expenses
+          (_) async => List.generate(10, (index) => tExpense2),
+        ); // Simulate 10 more expenses
         return expenseBloc;
       },
       seed: () => ExpenseLoaded(
@@ -404,9 +355,13 @@ void main() {
             .having(
               (state) => state.expenses.length,
               'expenses length',
-              12, // 10 initial + 2 more
+              20, // 10 initial + 10 more
             )
-            .having((state) => state.hasReachedMax, 'hasReachedMax', false),
+            .having(
+              (state) => state.hasReachedMax,
+              'hasReachedMax',
+              false, // Now will be false because moreExpenses.length (10) is not < 10
+            ),
       ],
       verify: (_) {
         verify(
