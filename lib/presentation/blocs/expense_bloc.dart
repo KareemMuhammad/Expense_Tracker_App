@@ -30,7 +30,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       final expenses = await _expensesDataSource.getExpenses(
         page: 0,
         pageSize: 10,
-        filter: event.filter?.title,
+        filter: event.filter,
       );
       emit(ExpenseLoaded(
         expenses: expenses,
@@ -77,7 +77,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       final expenses = await _expensesDataSource.getExpenses(
         page: 0,
         pageSize: 10,
-        filter: event.filter.title,
+        filter: event.filter,
       );
       emit(ExpenseLoaded(
         expenses: expenses,
@@ -98,7 +98,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         final moreExpenses = await _expensesDataSource.getExpenses(
           page: (currentState.expenses.length / 10).floor(),
           pageSize: 10,
-          filter: currentState.currentFilter?.title,
+          filter: currentState.currentFilter,
         );
 
         emit(ExpenseLoaded(

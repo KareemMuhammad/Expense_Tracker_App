@@ -318,7 +318,7 @@ void main() {
           () => mockExpensesLocalDataSource.getExpenses(
             page: 0,
             pageSize: 10,
-            filter: 'This Month',
+            filter: FilterTypeEnum.thisMonth,
           ),
         ).thenAnswer((_) async => [tExpense1]);
         return expenseBloc;
@@ -338,7 +338,7 @@ void main() {
           () => mockExpensesLocalDataSource.getExpenses(
             page: 0,
             pageSize: 10,
-            filter: 'This Month',
+            filter: FilterTypeEnum.thisMonth,
           ),
         ).called(1);
       },

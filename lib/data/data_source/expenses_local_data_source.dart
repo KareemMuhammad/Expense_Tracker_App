@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/expense.dart';
+import '../models/filter_type_enum.dart';
 
 class ExpensesLocalDataSource {
   static const String _expenseBoxName = 'expenses';
@@ -15,18 +16,10 @@ class ExpensesLocalDataSource {
     await _expenseBox.put(expense.id, expense);
   }
 
-  Future<void> updateExpense(Expense expense) async {
-    await _expenseBox.put(expense.id, expense);
-  }
-
-  Future<void> deleteExpense(String expenseId) async {
-    await _expenseBox.delete(expenseId);
-  }
-
   Future<List<Expense>> getExpenses({
     int page = 0,
     int pageSize = 10,
-    String? filter,
+    FilterTypeEnum? filter,
   }) async {
     final allExpenses = _expenseBox.values.toList();
     
@@ -38,17 +31,19 @@ class ExpensesLocalDataSource {
     if (filter != null) {
       final now = DateTime.now();
       switch (filter) {
-        case 'This Month':
+        case FilterTypeEnum.thisMonth:
           filteredExpenses = allExpenses.where((expense) {
             return expense.date.year == now.year && 
                    expense.date.month == now.month;
           }).toList();
           break;
-        case 'Last 7 Days':
+        case FilterTypeEnum.lastWeek:
           final sevenDaysAgo = now.subtract(const Duration(days: 7));
           filteredExpenses = allExpenses.where((expense) {
             return expense.date.isAfter(sevenDaysAgo);
           }).toList();
+          break;
+        case FilterTypeEnum.all:
           break;
       }
     }
@@ -62,15 +57,6 @@ class ExpensesLocalDataSource {
     }
     
     return filteredExpenses.sublist(startIndex, endIndex);
-  }
-
-  Future<double> getTotalBalance({String? filter}) async {
-    final expenses = await getExpenses(filter: filter, pageSize: 1000);
-    double total = 0.0;
-    for (final expense in expenses) {
-      total += expense.amountInUSD;
-    }
-    return total;
   }
 
   Future<void> clearAll() async {
