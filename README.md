@@ -77,9 +77,6 @@ transactions with real-time exchange rates.
 ```bash
 # Build APK
 flutter build apk --release
-
-# Build App Bundle (for Play Store)
-flutter build appbundle --release
 ```
 
 #### iOS
@@ -141,9 +138,6 @@ Run tests with:
 ```bash
 # Unit tests
 flutter test
-
-# Integration tests
-flutter drive --target=test_driver/app.dart
 ```
 
 ## CI/CD
@@ -156,7 +150,6 @@ The project includes GitHub Actions workflows for:
 
 ### Workflow Files
 
-- `.github/workflows/ci.yml`: Continuous integration
 - `.github/workflows/build.yml`: Build and release
 
 ## Contributing
@@ -173,10 +166,6 @@ The project includes GitHub Actions workflows for:
 - Use `dart format` for formatting
 - Ensure all tests pass
 - Add tests for new features
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
