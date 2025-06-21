@@ -173,6 +173,10 @@ The project includes GitHub Actions workflows for:
 - [open.er-api.com](https://open.er-api.com) - Exchange rate API
 - [Dribbble](https://dribbble.com/shots/24276232-Expense-Tracker-App) - Design inspiration
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Support
 
 For support, email kareemmuhammad9611@gmail.com or create an issue on GitHub.
