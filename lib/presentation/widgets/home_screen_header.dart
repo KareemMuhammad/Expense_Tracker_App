@@ -30,7 +30,7 @@ class HomeScreenHeader extends StatelessWidget {
           ),
         ),
         width: double.infinity,
-        height: MediaQuery.sizeOf(context).height * 0.4,
+        height: MediaQuery.sizeOf(context).height * 0.35,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),

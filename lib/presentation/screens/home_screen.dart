@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildHeader(),
           Positioned.fill(
-            top: MediaQuery.sizeOf(context).height * 0.12,
+            top: MediaQuery.sizeOf(context).height * 0.11,
             child: Scaffold(
               backgroundColor: Colors.transparent,
               body: SafeArea(

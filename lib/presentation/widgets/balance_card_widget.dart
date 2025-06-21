@@ -54,6 +54,7 @@ class BalanceCardWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '\$ ${totalBalance.toStringAsFixed(2)}',
+            maxLines: 2,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 36,
@@ -73,7 +74,7 @@ class BalanceCardWidget extends StatelessWidget {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.indigo.withValues(alpha: 0.3),
+                            color: Color(0xFF4A90E2).withValues(alpha: 0.5),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(3.0),
@@ -84,7 +85,7 @@ class BalanceCardWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 5),
                         Text(
                           'Income',
                           style: TextStyle(
@@ -95,9 +96,10 @@ class BalanceCardWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
                     Text(
                       '\$ ${totalIncome.toStringAsFixed(2)}',
+                      maxLines: 2,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -117,7 +119,7 @@ class BalanceCardWidget extends StatelessWidget {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.indigo.withValues(alpha: 0.3),
+                            color: Color(0xFF4A90E2).withValues(alpha: 0.5),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(3.0),
@@ -142,6 +144,7 @@ class BalanceCardWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '\$ ${totalExpenses.toStringAsFixed(2)}',
+                      maxLines: 2,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,

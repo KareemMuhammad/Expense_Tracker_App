@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/di.dart';
+import '../../core/utils/helpers/screen_helpers.dart';
 import '../../data/data_source/currency_remote_data_source.dart';
 import '../../data/data_source/expenses_local_data_source.dart';
 import '../../data/models/filter_type_enum.dart';
@@ -24,36 +25,6 @@ class AddExpenseScreen extends StatefulWidget {
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-
-  final List<Map<String, dynamic>> categories = [
-    {
-      'name': 'Groceries',
-      'icon': Icons.shopping_cart,
-      'color': AppColors.primary,
-    },
-    {'name': 'Entertainment', 'icon': Icons.movie, 'color': AppColors.primary},
-    {
-      'name': 'Gas',
-      'icon': Icons.local_gas_station,
-      'color': const Color(0xFFFF6B6B),
-    },
-    {
-      'name': 'Shopping',
-      'icon': Icons.shopping_bag,
-      'color': const Color(0xFFFFD93D),
-    },
-    {
-      'name': 'News Paper',
-      'icon': Icons.newspaper,
-      'color': const Color(0xFFFFB347),
-    },
-    {
-      'name': 'Transport',
-      'icon': Icons.directions_car,
-      'color': const Color(0xFF9B59B6),
-    },
-    {'name': 'Rent', 'icon': Icons.home, 'color': const Color(0xFFE67E22)},
-  ];
 
   @override
   void dispose() {
@@ -91,23 +62,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         },
         child: Scaffold(
           backgroundColor: Colors.grey[50],
-          appBar: AppBar(
-            backgroundColor: Colors.grey[50],
-            elevation: 0,
-            leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-            title: const Text(
-              'Add Expense',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
+          appBar: _buildAppBar(context),
           body: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -123,7 +78,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   const SizedBox(height: 24),
                   _buildReceiptSection(),
                   const SizedBox(height: 32),
-                  CategoriesGridWidget(categories: categories),
+                  CategoriesGridWidget(categories: ScreenHelpers.categories),
                   const SizedBox(height: 40),
                   _buildSaveButton(),
                 ],
@@ -135,8 +90,28 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.grey[50],
+      elevation: 0,
+      leading: IconButton(
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+      ),
+      title: const Text(
+        'Add Expense',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 21,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+
   Widget _buildCategoryDropdown() {
-    final List<String> categoryNames = categories
+    final List<String> categoryNames = ScreenHelpers.categories
         .map((category) => category['name'] as String)
         .toList();
     return Column(
@@ -263,21 +238,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             }
             return GestureDetector(
               onTap: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDate,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime.now(),
-                  builder: (context, child) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: const ColorScheme.light(
-                          primary: AppColors.primary,
-                        ),
-                      ),
-                      child: child!,
-                    );
-                  },
+                final DateTime? picked = await _showDatePicker(
+                  context,
+                  selectedDate,
                 );
                 if (picked != null && picked != selectedDate) {
                   if (!context.mounted) return;
@@ -433,6 +396,26 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           );
         },
       ),
+    );
+  }
+
+  Future<DateTime?> _showDatePicker(
+    BuildContext context,
+    DateTime selectedDate,
+  ) async {
+    return await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }
