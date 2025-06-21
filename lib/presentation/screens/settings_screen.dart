@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/expense_bloc.dart';
+import '../blocs/expenses_list/expense_bloc.dart';
 import '../../core/services/export_service.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -66,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -78,8 +78,8 @@ class SettingsScreen extends StatelessWidget {
           height: 40,
           decoration: BoxDecoration(
             color: isDestructive
-                ? Colors.red.withOpacity(0.1)
-                : const Color(0xFF4A90E2).withOpacity(0.1),
+                ? Colors.red.withValues(alpha: 0.1)
+                : const Color(0xFF4A90E2).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
@@ -118,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
         final exportService = ExportService();
 
         await exportService.exportToCsv(state.expenses);
-
+        if(!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Data exported successfully as $format'),
@@ -126,6 +126,7 @@ class SettingsScreen extends StatelessWidget {
           ),
         );
       } catch (e) {
+        if(!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Export failed: $e'),

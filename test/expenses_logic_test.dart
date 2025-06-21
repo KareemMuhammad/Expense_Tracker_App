@@ -1,14 +1,13 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:expense_tracker_app/data/models/expense.dart';
 import 'package:expense_tracker_app/data/models/filter_type_enum.dart';
-import 'package:expense_tracker_app/presentation/blocs/expense_bloc.dart';
+import 'package:expense_tracker_app/presentation/blocs/expenses_list/expense_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'expenses_mocks.dart';
 
 void main() {
-  late MockCurrencyRemoteDataSource mockCurrencyRemoteDataSource;
   late MockExpensesLocalDataSource mockExpensesLocalDataSource;
   late ExpenseBloc expenseBloc;
 
@@ -27,10 +26,8 @@ void main() {
   });
 
   setUp(() {
-    mockCurrencyRemoteDataSource = MockCurrencyRemoteDataSource();
     mockExpensesLocalDataSource = MockExpensesLocalDataSource();
     expenseBloc = ExpenseBloc(
-      currencyDataSource: mockCurrencyRemoteDataSource,
       expensesDataSource: mockExpensesLocalDataSource,
     );
   });
@@ -118,161 +115,6 @@ void main() {
       },
       act: (bloc) => bloc.add(LoadExpenses()),
       expect: () => [ExpenseLoading(), ExpenseError('Error loading expenses')],
-    );
-
-    // --- Add Expense (Validation & Currency Calculation) ---
-    blocTest<ExpenseBloc, ExpenseState>(
-      'emits [ExpenseLoaded] with new expense after AddExpense succeeds and reloads',
-      build: () {
-        // Mock initial load state
-        when(
-          () => mockExpensesLocalDataSource.getExpenses(
-            page: 0,
-            pageSize: 10,
-            filter: any(named: 'filter'),
-          ),
-        ).thenAnswer((_) async => []); // Initial empty state
-
-        // Mock currency conversion
-        when(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(50.0, 'EUR', 'USD'),
-        ).thenAnswer((_) async => 55.0); // Converted amount
-
-        // Mock adding expense
-        when(
-          () =>
-              mockExpensesLocalDataSource.addExpense(any(that: isA<Expense>())),
-        ).thenAnswer((_) async => Future.value());
-
-        // Mock reload after adding, including the new expense
-        when(
-          () => mockExpensesLocalDataSource.getExpenses(
-            page: 0,
-            pageSize: 10,
-            filter: any(named: 'filter'),
-          ),
-        ).thenAnswer((invocation) async {
-          // This ensures that when getExpenses is called after addExpense,
-          // it returns the 'newly' added expense, simulating reload.
-          if (invocation.namedArguments[#filter] == null) {
-            // Access named arguments via Symbol
-            return [
-              Expense(
-                id: 'some_id',
-                category: 'Groceries',
-                amount: 50.0,
-                currency: 'EUR',
-                amountInUSD: 55.0,
-                date: DateTime(2024, 6, 20),
-                receiptPath: null,
-                categoryIcon: null,
-              ),
-            ];
-          }
-          return [];
-        });
-
-        return expenseBloc;
-      },
-      act: (bloc) => bloc.add(
-        AddExpense(
-          category: 'Groceries',
-          amount: 50.0,
-          currency: 'EUR',
-          date: DateTime(2024, 6, 20),
-        ),
-      ),
-      expect: () => [
-        // The bloc first loads (empty), then when AddExpense finishes, it triggers LoadExpenses again.
-        // We'll test the resulting state after the AddExpense and subsequent LoadExpenses
-        ExpenseLoading(),
-        // From the implicit LoadExpenses triggered by AddExpense
-        isA<ExpenseLoaded>(),
-        // Check type, then check content
-      ],
-      verify: (_) {
-        verify(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(50.0, 'EUR', 'USD'),
-        ).called(1);
-        verify(
-          () =>
-              mockExpensesLocalDataSource.addExpense(any(that: isA<Expense>())),
-        ).called(1);
-        verify(
-          () => mockExpensesLocalDataSource.getExpenses(
-            page: 0,
-            pageSize: 10,
-            filter: any(named: 'filter'),
-          ),
-        ).called(1);
-      },
-    );
-
-    blocTest<ExpenseBloc, ExpenseState>(
-      'emits [ExpenseError] when AddExpense fails during currency conversion',
-      build: () {
-        when(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(any(), any(), any()),
-        ).thenThrow('Conversion error');
-        return expenseBloc;
-      },
-      act: (bloc) => bloc.add(
-        AddExpense(
-          category: 'Books',
-          amount: 30.0,
-          currency: 'JPY',
-          date: DateTime(2024, 6, 20),
-        ),
-      ),
-      expect: () => [ExpenseError('Conversion error')],
-      verify: (_) {
-        verify(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(30.0, 'JPY', 'USD'),
-        ).called(1);
-        verifyNever(
-          () =>
-              mockExpensesLocalDataSource.addExpense(any(that: isA<Expense>())),
-        ); // Should not be called
-      },
-    );
-
-    blocTest<ExpenseBloc, ExpenseState>(
-      'emits [ExpenseError] when AddExpense fails during saving to local data source',
-      build: () {
-        when(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(any(), any(), any()),
-        ).thenAnswer((_) async => 100.0); // Successful conversion
-
-        when(
-          () =>
-              mockExpensesLocalDataSource.addExpense(any(that: isA<Expense>())),
-        ).thenThrow('DB save error');
-        return expenseBloc;
-      },
-      act: (bloc) => bloc.add(
-        AddExpense(
-          category: 'Games',
-          amount: 80.0,
-          currency: 'CAD',
-          date: DateTime(2024, 6, 20),
-        ),
-      ),
-      expect: () => [ExpenseError('DB save error')],
-      verify: (_) {
-        verify(
-          () =>
-              mockCurrencyRemoteDataSource.convertCurrency(80.0, 'CAD', 'USD'),
-        ).called(1);
-        verify(
-          () =>
-              mockExpensesLocalDataSource.addExpense(any(that: isA<Expense>())),
-        ).called(1);
-      },
     );
 
     // --- Filter Expenses ---

@@ -1,13 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expense_tracker_app/data/models/filter_type_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/utils/animated_navigation.dart';
-import '../blocs/expense_bloc.dart';
+import '../../core/utils/helpers/screen_helpers.dart';
+import '../blocs/expenses_list/expense_bloc.dart';
 import '../../core/utils/app_colors.dart';
-import '../widgets/dropdown_widget.dart';
+import '../widgets/balance_card_widget.dart';
 import '../widgets/expenses_item_widget.dart';
+import '../widgets/home_screen_header.dart';
 import 'add_expense_screen.dart';
 import 'settings_screen.dart';
 
@@ -19,10 +20,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const String userImage =
-      'https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D';
-  FilterTypeEnum selectedFilter = FilterTypeEnum.all;
   late ScrollController _scrollController;
+  FilterTypeEnum selectedFilter = FilterTypeEnum.all;
 
   @override
   void initState() {
@@ -76,250 +75,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader() {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.0)),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, Color(0xFF357ABD)],
-          ),
-        ),
-        width: double.infinity,
-        height: MediaQuery.sizeOf(context).height * 0.4,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  backgroundImage: CachedNetworkImageProvider(userImage),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Good Morning',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        'Kareem Muhammad',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                  width: 115,
-                  child: DropdownWidget<FilterTypeEnum>(
-                    selectedValue: selectedFilter,
-                    items: FilterTypeEnum.values.toList(),
-                    onChanged: (FilterTypeEnum? value) {
-                      if (value != null) {
-                        setState(() => selectedFilter = value);
-                        context.read<ExpenseBloc>().add(FilterExpenses(value));
-                      }
-                    },
-                    itemLabel: (FilterTypeEnum type) => type.title,
-                    textStyle: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return HomeScreenHeader(
+      userImage: ScreenHelpers.userImage,
+      selectedFilter: selectedFilter,
+      onFilterChanged: (FilterTypeEnum? value) {
+        if (value != null) {
+          setState(() => selectedFilter = value);
+          context.read<ExpenseBloc>().add(FilterExpenses(value));
+        }
+      },
     );
   }
 
   Widget _buildBalanceCard(ExpenseState state) {
-    double totalBalance = 2548.00;
-    double totalIncome = 10840.00;
-    double totalExpenses = 1884.00;
-
+    double totalBalance = 0.00;
+    double totalIncome = 0.00;
+    double totalExpenses = 0.00;
     if (state is ExpenseLoaded) {
       totalBalance = state.totalBalance;
       totalIncome = state.totalIncome;
       totalExpenses = state.totalExpenses.abs();
     }
 
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primaryLight, Color(0xFF357ABD)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4A90E2).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    'Total Balance',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.keyboard_arrow_up,
-                    color: Colors.white70,
-                    size: 16,
-                  ),
-                ],
-              ),
-              Icon(
-                Icons.more_horiz,
-                color: Colors.white.withOpacity(0.7),
-                size: 25,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '\$ ${totalBalance.toStringAsFixed(2)}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.indigo.withValues(alpha: 0.3),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Icon(
-                              Icons.arrow_downward,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Income',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$ ${totalIncome.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.indigo.withValues(alpha: 0.3),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Icon(
-                              Icons.arrow_upward,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Expenses',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$ ${totalExpenses.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return BalanceCardWidget(
+      totalBalance: totalBalance,
+      totalIncome: totalIncome,
+      totalExpenses: totalExpenses,
     );
   }
 
@@ -392,9 +173,9 @@ class _HomeScreenState extends State<HomeScreen> {
             expense.category,
             expense.amount.abs(),
             expense.currency,
-            _formatTime(expense.date),
-            _getCategoryIcon(expense.category),
-            _getCategoryColor(expense.category),
+            ScreenHelpers.formatTime(expense.date),
+            ScreenHelpers.getCategoryIcon(expense.category),
+            ScreenHelpers.getCategoryColor(expense.category),
           );
         },
       );
@@ -437,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -479,9 +260,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildAddButton() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(
-          context,
-        ).push(SlideRightRoute(page: const AddExpenseScreen()));
+        Navigator.of(context).push(
+          SlideRightRoute(
+            page: AddExpenseScreen(currentFilter: selectedFilter),
+          ),
+        );
       },
       child: Container(
         width: 56,
@@ -493,47 +276,5 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'groceries':
-        return Icons.shopping_cart;
-      case 'entertainment':
-        return Icons.movie;
-      case 'transportation':
-        return Icons.directions_car;
-      case 'rent':
-        return Icons.home;
-      case 'food':
-        return Icons.restaurant;
-      default:
-        return Icons.category;
-    }
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'groceries':
-        return const Color(0xFF4A90E2);
-      case 'entertainment':
-        return const Color(0xFFFF9500);
-      case 'transportation':
-        return const Color(0xFF9B59B6);
-      case 'rent':
-        return const Color(0xFFE67E22);
-      case 'food':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _formatTime(DateTime date) {
-    final hour = date.hour;
-    final minute = date.minute;
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return 'Today ${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
 }

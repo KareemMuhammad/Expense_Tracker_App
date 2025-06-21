@@ -1,6 +1,7 @@
 import 'package:expense_tracker_app/data/data_source/currency_remote_data_source.dart';
 import 'package:expense_tracker_app/data/data_source/expenses_local_data_source.dart';
 import 'package:expense_tracker_app/data/models/expense.dart';
+import 'package:expense_tracker_app/presentation/blocs/expenses_list/expense_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockCurrencyRemoteDataSource extends Mock
@@ -8,6 +9,9 @@ class MockCurrencyRemoteDataSource extends Mock
 
 class MockExpensesLocalDataSource extends Mock
     implements ExpensesLocalDataSource {}
+
+class MockExpenseBloc extends Mock implements ExpenseBloc {}
+
 
 final tExpense1 = Expense(
   id: '1',

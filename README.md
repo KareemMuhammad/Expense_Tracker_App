@@ -34,9 +34,9 @@ transactions with real-time exchange rates.
 
 ## Screenshots
 
-| Home Screen                   | Add Expense                 | Settings                              |
-|-------------------------------|-----------------------------|---------------------------------------|
-| ![Home](screenshots/home.png) | ![Add](screenshots/add.png) | ![Settings](screenshots/settings.png) |
+| Home Screen                          | Add Expense                                | Settings                                     |
+|--------------------------------------|--------------------------------------------|----------------------------------------------|
+| ![Home](screenshots/home_screen.png) | ![Add](screenshots/add_expense_screen.png) | ![Settings](screenshots/settings_screen.png) |
 
 ## Getting Started
 

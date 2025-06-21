@@ -26,8 +26,8 @@ jobs:
     - name: Generate code
       run: dart run build_runner build --delete-conflicting-outputs
     
-#    - name: Analyze code
-#      run: flutter analyze
+    - name: Analyze code
+      run: flutter analyze
     
     - name: Run tests
       run: flutter test

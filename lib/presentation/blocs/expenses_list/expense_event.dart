@@ -16,34 +16,6 @@ class LoadExpenses extends ExpenseEvent {
   List<Object?> get props => [filter];
 }
 
-class AddExpense extends ExpenseEvent {
-  final String category;
-  final double amount;
-  final String currency;
-  final DateTime date;
-  final String? receiptPath;
-  final String? categoryIcon;
-
-  const AddExpense({
-    required this.category,
-    required this.amount,
-    required this.currency,
-    required this.date,
-    this.receiptPath,
-    this.categoryIcon,
-  });
-
-  @override
-  List<Object?> get props => [
-        category,
-        amount,
-        currency,
-        date,
-        receiptPath,
-        categoryIcon,
-      ];
-}
-
 class FilterExpenses extends ExpenseEvent {
   final FilterTypeEnum filter;
 
