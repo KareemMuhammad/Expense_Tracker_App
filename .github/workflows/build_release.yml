@@ -7,6 +7,12 @@ on:
       - 'v*'
   pull_request:
     branches: [ main ]
+  workflow_dispatch:   # 👈 required for API/Manual triggers
+    inputs:
+      branch:
+        description: "Branch to run build on"
+        required: true
+        default: "main"
 
 jobs:
   test:
